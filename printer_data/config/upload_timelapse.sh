@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# Updated directory matching OpenNept4une's installation path
-LOCAL_DIR="/home/mks/printer_data/timelapse/"
+# Explicitly load your Google Rclone authentication keys
+export RCLONE_CONFIG=/home/mks/.config/rclone/rclone.conf
 
-# Use rclone to safely copy files over to a '3D_Prints_Timelapse' folder on Google Drive
-rclone copy "$LOCAL_DIR" gdrive:3D_Prints_Timelapse --include "*.mp4"
+# Find the newest completed video file inside your timelapse folder
+LATEST_VIDEO=$(ls -t /home/mks/printer_data/timelapse/*.mp4 | head -n 1)
 
-echo "OpenNept4une Video Sync: Upload to Google Drive complete."
+# If a video is found, move it straight to your Google Drive folder
+if [ ! -z "$LATEST_VIDEO" ]; then
+    /usr/bin/rclone move "$LATEST_VIDEO" gdrive:3D_Prints/ --log-file=/home/mks/printer_data/logs/rclone.log -v
+fi
